@@ -20,13 +20,14 @@ TEMPERATURE = 0.7
 # Define a route for fetching the fortune.
 @app.route("/fortune", methods=["GET"])
 def get_fortune():
-    # Use OpenAI's Completion API to generate a short fortune message with the specified prompt and temperature.
-    response = openai.Completion.create(
-        engine="gpt-3.5-turbo", prompt=PROMPT, max_tokens=50, temperature=TEMPERATURE
+    # Use OpenAI's Chat API to generate a short fortune message.
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": PROMPT}],
     )
 
     # Extract the generated text from the API response and strip any extra whitespace.
-    fortune = response.choices[0].text.strip()
+    fortune = response["choices"][0]["message"]["content"].strip()
 
     # Return the fortune as a JSON response.
     return jsonify({"fortune": fortune})
