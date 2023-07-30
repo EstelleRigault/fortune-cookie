@@ -12,7 +12,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 app = Flask(__name__)
 
 # Define your custom prompt here
-PROMPT = "Write a short fortune cookie message:"
+PROMPT = "Imagine you're a sentient AI fortune cookie with a cheeky sense of humor. You've just realized you're not just filled with paper, but with bytes and bits. Craft a funny and slightly inappropriate fortune that includes a dash of innuendo."
 # Set the desired temperature here (e.g., 0.7 for a balance between randomness and determinism)
 TEMPERATURE = 0.7
 
