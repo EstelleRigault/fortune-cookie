@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 import openai
 from dotenv import load_dotenv
 import os
@@ -11,24 +11,38 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
 
-# Define your custom prompt here
-PROMPT = "Imagine you're a sentient AI fortune cookie with a cheeky sense of humor. You've just realized you're not just filled with paper, but with bytes and bits. Craft a funny and slightly inappropriate fortune that includes a dash of innuendo."
-# Set the desired temperature here (e.g., 0.7 for a balance between randomness and determinism)
-TEMPERATURE = 0.7
+# Define your custom prompt as a conversation
+SYSTEM_CONTENT = f"You are a cheeky fortune cookie. \
+    Your goal is to provide short, funny, and slightly inappropriate fortunes. \
+    Keep your response to a short sentence that fits in a fortune cookie. \
+    Do not greet the user, just reply with a fortune."
 
+PROMPT = [
+    {
+        "role": "system",
+        "content": SYSTEM_CONTENT,
+    },
+    {"role": "user", "content": "Hey cookie! Give me a fortune."},
+]
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+# Define default values for temperature and max tokens
+DEFAULT_TEMPERATURE = 0.7
+DEFAULT_MAX_TOKENS = 50
 
 
 # Define a route for fetching the fortune.
 @app.route("/fortune", methods=["GET"])
 def get_fortune():
+    # Fetch temperature and max tokens from query parameters or use defaults
+    temperature = float(request.args.get("temperature", DEFAULT_TEMPERATURE))
+    max_tokens = int(request.args.get("max_tokens", DEFAULT_MAX_TOKENS))
+
     # Use OpenAI's Chat API to generate a short fortune message.
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": PROMPT}],
+        messages=PROMPT,
+        temperature=temperature,
+        max_tokens=max_tokens,
     )
 
     # Extract the generated text from the API response and strip any extra whitespace.
@@ -38,7 +52,13 @@ def get_fortune():
     return jsonify({"fortune": fortune})
 
 
+# Render index
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
 # Start the Flask app when this script is run.
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 5001))
     app.run(debug=True, host="0.0.0.0", port=port)
