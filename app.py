@@ -17,6 +17,11 @@ PROMPT = "Imagine you're a sentient AI fortune cookie with a cheeky sense of hum
 TEMPERATURE = 0.7
 
 
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
 # Define a route for fetching the fortune.
 @app.route("/fortune", methods=["GET"])
 def get_fortune():
